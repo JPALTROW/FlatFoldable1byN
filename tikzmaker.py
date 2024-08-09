@@ -7,8 +7,8 @@ import math
 from math import comb
 import matplotlib.pyplot as plt
 
-orig = [18, 16, 5, 14, 7, 12, 9, 10, 11, 8, 13, 6, 15, 3, 1, 0, 2, 4, 17];
-labels = ["n+1", "n-1", "n-1", "n+1", "n", "\\quad\\dots", "j+2", "j-1", 1, 0, "\\quad\\dots", "j"]
+orig = [5, 14, 7, 12, 9, 10, 11, 8, 13, 6, 3, 1, 0, 2, 4];
+labels = ["j+1", "2a-j+2", "j+3", " ", " ", 'a', 'a+1', " ", " ", "j+2", "j-1", "1", "0", " ", "j"]
 
 n = len(orig)
 startX = 0
@@ -21,32 +21,61 @@ for i in range(n):
 
 perm = np.argsort(orig)
 
-# for i in range(n - 1):
-#     a = perm[i]
-#     b = perm[i+1]
-#     u = posX[max(a,b)]
-#     l = posX[min(a,b)]
-#     c = 0.5*(u+l)
-#     r = 0.5*(u-l)
-#
-#     # print(a, b, u, l, c, r)
-#     print("\\begin{scope}")
-#     if (i%2 == 0):
-#         print("\\clip (" + str(l-.5)+",0) rectangle ("+str(u+.5)+","+str(r+.5)+");")
-#     else:
-#         print("\\clip (" + str(l-.5)+",0) rectangle ("+str(u+.5)+",-"+str(r+.5)+");")
-#     if (i > 9):
-#         print("\\draw [ultra thick, color = red] ("+str(c)+",0) ellipse ("+str(r)+" and "+str(0.75*r)+");")
-#     else:
-#         print("\\draw [ultra thick] ("+str(c)+",0) ellipse ("+str(r)+" and "+str(0.75*r)+");")
-#     print("\\end{scope}")
-#
-# print("\\draw [thick]("+str(startX-1)+",0) -- ("+str(endX+1) +",0);")
-#
-# for i in range(len(orig)):
-#     print("\\filldraw ("+str(posX[i])+",0) circle[radius = 1.5pt];")
-#     # print("\\node[below right=1pt of {("+str(posX[i])+",0)}] {\\small $"+str(labels[i])+"$};")
-print("\\node[above=2pt of {("+str(posX[0])+",0)}] {\\small $2a-j+2$};")
-print("\\node[below right=1pt of {("+str(posX[7])+",0)}] {\\small $a$};")
-print("\\node[below right=1pt of {("+str(posX[8])+",0)}] {\\small $a+1$};")
-print("\\node[below right=1pt of {("+str(posX[18])+",0)}] {\\small $2a-j+1$};")
+def draw_top_arc(c,r, color):
+    print("\\begin{scope}")
+    print("\\clip (" + str(c-r-.5)+",0) rectangle ("+str(c+r+.5)+","+str(r+.5)+");")
+    print("\\draw [ultra thick, color = "+color+"] ("+str(c)+",0) ellipse ("+str(r)+" and "+str(0.75*r)+");")
+    print("\\end{scope}")
+
+def draw_bottom_arc(c,r, color):
+    print("\\begin{scope}")
+    print("\\clip (" + str(c-r-.5)+",0) rectangle ("+str(c+r+.5)+",-"+str(r+.5)+");")
+    print("\\draw [ultra thick, color = "+color+"] ("+str(c)+",0) ellipse ("+str(r)+" and "+str(0.75*r)+");")
+    print("\\end{scope}")
+
+def rspiral(i, color):
+    c = posX[perm[i]]+step/4
+    r = step/4
+    for j in range(5):
+        if (j%2 == 0):
+            draw_top_arc(c, r, color)
+        else:
+            draw_bottom_arc(c,r,color)
+
+        c = c+r*((-1)**j)/2
+        r = r/2
+
+def lspiral(i, color):
+    c = posX[perm[i]]-step/4
+    r = step/4
+    for j in range(5):
+        if (j%2 == 1):
+            draw_top_arc(c, r, color)
+        else:
+            draw_bottom_arc(c,r,color)
+
+        c = c-r*((-1)**j)/2
+        r = r/2
+
+
+for i in range(n - 1):
+    a = perm[i]
+    b = perm[i+1]
+    c = 0.5*(a+b)
+    r = 0.5*(abs(a-b))
+    color = 'black'
+    if (i> 9):
+        color = 'red'
+    if (i%2 == 0):
+        draw_top_arc(c,r, color)
+    else:
+        draw_bottom_arc(c,r,color)
+rspiral(12, 'red')
+lspiral(11, 'red')
+lspiral(13, 'red')
+
+print("\\draw [thick]("+str(startX-1)+",0) -- ("+str(endX+1) +",0);")
+
+for i in range(len(orig)):
+    print("\\filldraw ("+str(posX[i])+",0) circle[radius = 1.5pt];")
+    print("\\node[below right = -2pt and 0 pt of {("+str(posX[i])+",0)}] {\\small $"+str(labels[i])+"$};")
